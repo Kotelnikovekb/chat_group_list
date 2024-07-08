@@ -13,6 +13,10 @@ class ChatGroupList<T extends MessageItem> extends StatefulWidget {
   /// Отступы между сообщениями внутри одной группы
   final double verticalPaddingInGroup;
   final EdgeInsetsGeometry? contentPadding;
+  final CustomPainter Function(BuildContext context, bool isMine)? tailBuilder;
+  final Color mineBackgroundColor;
+  final Color otherBackgroundColor;
+
 
   const ChatGroupList(
       {super.key,
@@ -24,7 +28,10 @@ class ChatGroupList<T extends MessageItem> extends StatefulWidget {
         this.primaryRadius,
         this.secondaryRadius,
         this.verticalPaddingInGroup=3,
-        this.contentPadding
+        this.contentPadding,
+        this.tailBuilder,
+        this.mineBackgroundColor=Colors.blue,
+        this.otherBackgroundColor=Colors.black26
       });
 
   @override
@@ -59,6 +66,19 @@ class _ChatGroupListState<T extends MessageItem> extends State<ChatGroupList<T>>
                 secondaryRadius: widget.secondaryRadius??6,
                 verticalPaddingInGroup: widget.verticalPaddingInGroup,
                 contentPadding: widget.contentPadding??const EdgeInsets.all(8),
+                tailBuilder: widget.tailBuilder ??
+                    (
+                            (context, itsRight) => MessageTailPainter(
+                                isMine: itsRight,
+                                color: itsRight
+                                    ? widget.mineBackgroundColor
+                                    : widget.otherBackgroundColor
+                            )
+                    ),
+                mineBackgroundColor: widget.mineBackgroundColor,
+                otherBackgroundColor: widget.otherBackgroundColor,
+
+
               );
             }),
           ],
@@ -144,6 +164,8 @@ class _MessageGroup<T extends MessageItem>{
 class MessageBubble<T extends MessageItem> extends StatelessWidget {
   final Widget Function(BuildContext context, T item) contentBuilder;
   final Widget Function(BuildContext context, T item)? messageInformationBuilder;
+  // отвечает за отрисовку хвоста у сообщения
+  final CustomPainter Function(BuildContext context, bool itsRight) tailBuilder;
 
   final double? maxWidth;
 
@@ -151,6 +173,8 @@ class MessageBubble<T extends MessageItem> extends StatelessWidget {
   final double secondaryRadius;
   final double verticalPaddingInGroup;
   final EdgeInsetsGeometry contentPadding;
+  final Color mineBackgroundColor;
+  final Color otherBackgroundColor;
 
 
   final bool isMine;
@@ -171,6 +195,7 @@ class MessageBubble<T extends MessageItem> extends StatelessWidget {
     this.secondaryRadius=6,
     required this.verticalPaddingInGroup,
     required this.contentPadding,
+    required this.tailBuilder, required this.mineBackgroundColor, required this.otherBackgroundColor,
   });
 
   @override
@@ -223,7 +248,7 @@ class MessageBubble<T extends MessageItem> extends StatelessWidget {
               margin: isMine ? EdgeInsets.only(right: 10) : EdgeInsets.only(left: 10),
               padding: contentPadding,
               decoration: BoxDecoration(
-                color: isMine ? Colors.blue : Colors.grey,
+                color: isMine ? mineBackgroundColor : otherBackgroundColor,
                 borderRadius: borderRadius,
               ),
               child: Column(
@@ -242,7 +267,7 @@ class MessageBubble<T extends MessageItem> extends StatelessWidget {
                 left: isMine ? null : 0,
                 bottom: 0,
                 child: CustomPaint(
-                  painter: MessageTailPainter(isMine: isMine),
+                  painter: tailBuilder.call(context,isMine),
                   child: SizedBox(
                     width: 10,
                     height: 10,
@@ -259,13 +284,14 @@ class MessageBubble<T extends MessageItem> extends StatelessWidget {
 
 class MessageTailPainter extends CustomPainter {
   final bool isMine;
+  final Color color;
 
-  MessageTailPainter({required this.isMine});
+  MessageTailPainter( {required this.isMine,required this.color,});
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = isMine ? Colors.blue : Colors.grey
+      ..color = color
       ..style = PaintingStyle.fill;
 
     final path = Path();

@@ -145,7 +145,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
             ),
             MessageItemDto(
-                message: 'Мое сообщеение 3 очень длинное сообщение я очень хочу проверить как оно отображается в чате',
+                message:
+                    'Мое сообщеение 3 очень длинное сообщение я очень хочу проверить как оно отображается в чате',
                 date: DateTime(2024, 7, 3),
                 isMine: true
             ),
@@ -161,8 +162,9 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Text(DateFormat('HH:mm').format(item.date),
             ),
           ),
-          primaryRadius: 30,
-          secondaryRadius: 12,
+          primaryRadius: 12,
+          secondaryRadius: 6,
+          mineBackgroundColor: Colors.red,
         ),
       ),
       floatingActionButton: FloatingActionButton(
