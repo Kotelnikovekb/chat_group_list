@@ -1,3 +1,4 @@
+import 'package:chat_group_list/chat_group_list.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -89,30 +90,73 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+        child: ChatGroupList<MessageItemDto>(
+          items: [
+            MessageItemDto(
+              message: 'Мое сообщеение 2',
+                date: DateTime.now(),
+              isMine: true
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            MessageItemDto(
+                message: 'Мое сообщеение 1',
+                date: DateTime(2024, 7, 1),
+            ),
+            MessageItemDto(
+              message: 'Мое сообщеение 1',
+              date: DateTime(2024, 7, 1),
+            ),
+            MessageItemDto(
+                message: 'Мое сообщеение 1',
+                date: DateTime(2024, 7, 1)
+            ),
+            MessageItemDto(
+                message: 'Мое сообщеение 2',
+                date: DateTime(2024, 7, 2)
+            ),
+            MessageItemDto(
+                message: 'Мое сообщеение 2',
+                date: DateTime(2024, 7, 2),
+                isMine: true
+
+            ),
+            MessageItemDto(
+                message: 'Мое сообщеение 2',
+                date: DateTime(2024, 7, 2),
+                isMine: true
+
+            ),
+            MessageItemDto(
+                message: 'Мое сообщеение 2',
+                date: DateTime(2024, 7, 2),
+                isMine: true
+
+            ),
+            MessageItemDto(
+                message: 'Мое сообщеение 2',
+                date: DateTime(2024, 7, 2),
+                isMine: true
+
+            ),
+            MessageItemDto(
+                message: 'Мое сообщеение 3',
+                date: DateTime(2024, 7, 3),
+                isMine: true
+
+            ),
+            MessageItemDto(
+                message: 'Мое сообщеение 3 очень длинное сообщение я очень хочу проверить как оно отображается в чате',
+                date: DateTime(2024, 7, 3),
+                isMine: true
+
             ),
           ],
+          contentBuilder: (_,MessageItemDto item)=>Container(
+            child: Text(item.message),
+          ),
+          dataSeparatorBuilder: (_,DateTime date)=>Container(
+            alignment: Alignment.center,
+            child: Text(date.toString()),
+          )
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -122,4 +166,11 @@ class _MyHomePageState extends State<MyHomePage> {
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+}
+
+
+class MessageItemDto extends MessageItem{
+  MessageItemDto({required super.message, required super.date, super.isMine = false});
+
+
 }
