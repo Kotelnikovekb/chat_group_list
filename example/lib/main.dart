@@ -1,5 +1,6 @@
 import 'package:chat_group_list/chat_group_list.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(const MyApp());
@@ -147,7 +148,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 message: 'Мое сообщеение 3 очень длинное сообщение я очень хочу проверить как оно отображается в чате',
                 date: DateTime(2024, 7, 3),
                 isMine: true
-
             ),
           ],
           contentBuilder: (_,MessageItemDto item)=>Container(
@@ -155,8 +155,14 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           dataSeparatorBuilder: (_,DateTime date)=>Container(
             alignment: Alignment.center,
-            child: Text(date.toString()),
-          )
+            child: Text(DateFormat('d MMMM').format(date)),
+          ),
+          messageInformationBuilder: (_,MessageItemDto item)=>Container(
+            child: Text(DateFormat('HH:mm').format(item.date),
+            ),
+          ),
+          primaryRadius: 30,
+          secondaryRadius: 12,
         ),
       ),
       floatingActionButton: FloatingActionButton(

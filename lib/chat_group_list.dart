@@ -8,6 +8,11 @@ class ChatGroupList<T extends MessageItem> extends StatefulWidget {
   final Widget Function(BuildContext context, DateTime data)? dataSeparatorBuilder;
   final Widget Function(BuildContext context, T item)? messageInformationBuilder;
   final double? maxWidth;
+  final double? primaryRadius;
+  final double? secondaryRadius;
+  /// Отступы между сообщениями внутри одной группы
+  final double verticalPaddingInGroup;
+  final EdgeInsetsGeometry? contentPadding;
 
   const ChatGroupList(
       {super.key,
@@ -15,7 +20,12 @@ class ChatGroupList<T extends MessageItem> extends StatefulWidget {
       required this.contentBuilder,
         this.dataSeparatorBuilder,
         this.messageInformationBuilder,
-        this.maxWidth});
+        this.maxWidth,
+        this.primaryRadius,
+        this.secondaryRadius,
+        this.verticalPaddingInGroup=3,
+        this.contentPadding
+      });
 
   @override
   State<ChatGroupList> createState() => _ChatGroupListState<T>();
@@ -44,6 +54,11 @@ class _ChatGroupListState<T extends MessageItem> extends State<ChatGroupList<T>>
                 isLast: index == group.messages.length - 1,
                 contentBuilder: widget.contentBuilder,
                 item: group.messages[index],
+                messageInformationBuilder: widget.messageInformationBuilder,
+                primaryRadius: widget.primaryRadius??12,
+                secondaryRadius: widget.secondaryRadius??6,
+                verticalPaddingInGroup: widget.verticalPaddingInGroup,
+                contentPadding: widget.contentPadding??const EdgeInsets.all(8),
               );
             }),
           ],
@@ -132,6 +147,11 @@ class MessageBubble<T extends MessageItem> extends StatelessWidget {
 
   final double? maxWidth;
 
+  final double primaryRadius;
+  final double secondaryRadius;
+  final double verticalPaddingInGroup;
+  final EdgeInsetsGeometry contentPadding;
+
 
   final bool isMine;
   final bool isFirst;
@@ -147,6 +167,10 @@ class MessageBubble<T extends MessageItem> extends StatelessWidget {
     required this.item,
     this.messageInformationBuilder,
     this.maxWidth,
+    this.primaryRadius=12,
+    this.secondaryRadius=6,
+    required this.verticalPaddingInGroup,
+    required this.contentPadding,
   });
 
   @override
@@ -155,34 +179,39 @@ class MessageBubble<T extends MessageItem> extends StatelessWidget {
     bool needTail=false;
     if (isFirst && isLast) {
       borderRadius = BorderRadius.only(
-        topLeft: Radius.circular(12),
-        topRight: Radius.circular(12),
-        bottomLeft: Radius.circular(isMine ? 12 : 0),
-        bottomRight: Radius.circular(isMine ? 0 : 12),
+        topLeft: Radius.circular(primaryRadius),
+        topRight: Radius.circular(primaryRadius),
+        bottomLeft: Radius.circular(isMine ? primaryRadius : 0),
+        bottomRight: Radius.circular(isMine ? 0 : primaryRadius),
       );
       needTail=true;
     } else if (isFirst) {
       borderRadius = BorderRadius.only(
-        topLeft: Radius.circular(12),
-        topRight: Radius.circular(12),
-        bottomLeft: Radius.circular(isMine ? 12 : 0),
-        bottomRight: Radius.circular(isMine ? 0 : 12),
+        topLeft: Radius.circular(primaryRadius),
+        topRight: Radius.circular(primaryRadius),
+        bottomLeft: Radius.circular(isMine ? primaryRadius : secondaryRadius),
+        bottomRight: Radius.circular(isMine ? secondaryRadius : primaryRadius),
       );
     } else if (isLast) {
       borderRadius = BorderRadius.only(
-        topLeft: Radius.circular(12),
-        topRight: Radius.circular(12),
-        bottomLeft: Radius.circular(isMine ? 12 : 0),
-        bottomRight: Radius.circular(isMine ? 0 : 12),
+        topLeft: Radius.circular(primaryRadius),
+        topRight: Radius.circular(primaryRadius),
+        bottomLeft: Radius.circular(isMine ? primaryRadius : 0),
+        bottomRight: Radius.circular(isMine ? 0 : primaryRadius),
       );
       needTail=true;
 
     } else {
-      borderRadius = BorderRadius.circular(0);
+      borderRadius = BorderRadius.only(
+        bottomLeft: Radius.circular(isMine ? primaryRadius : secondaryRadius),
+        bottomRight: Radius.circular(isMine ? secondaryRadius : primaryRadius),
+        topLeft: Radius.circular(isMine ? primaryRadius : secondaryRadius),
+        topRight: Radius.circular(isMine ? secondaryRadius : primaryRadius),
+      );
     }
 
     return Padding(
-        padding: EdgeInsets.symmetric(vertical: 3),
+        padding: EdgeInsets.symmetric(vertical: verticalPaddingInGroup),
       child: Align(
         alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
         child: Stack(
@@ -190,15 +219,16 @@ class MessageBubble<T extends MessageItem> extends StatelessWidget {
             Container(
               constraints: BoxConstraints(
                 maxWidth: maxWidth??MediaQuery.of(context).size.width*0.8,
-
               ),
               margin: isMine ? EdgeInsets.only(right: 10) : EdgeInsets.only(left: 10),
-              padding: EdgeInsets.all(8),
+              padding: contentPadding,
               decoration: BoxDecoration(
                 color: isMine ? Colors.blue : Colors.grey,
                 borderRadius: borderRadius,
               ),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: (isMine)? CrossAxisAlignment.end:CrossAxisAlignment.start,
                 children: [
                   contentBuilder.call(context,item),
                   if(messageInformationBuilder!=null)
