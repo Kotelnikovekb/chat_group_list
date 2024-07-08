@@ -16,6 +16,8 @@ class ChatGroupList<T extends MessageItem> extends StatefulWidget {
   final CustomPainter Function(BuildContext context, bool isMine)? tailBuilder;
   final Color mineBackgroundColor;
   final Color otherBackgroundColor;
+  final ScrollController? controller;
+
 
 
   const ChatGroupList(
@@ -31,7 +33,8 @@ class ChatGroupList<T extends MessageItem> extends StatefulWidget {
         this.contentPadding,
         this.tailBuilder,
         this.mineBackgroundColor=Colors.blue,
-        this.otherBackgroundColor=Colors.black26
+        this.otherBackgroundColor=Colors.black26,
+        this.controller
       });
 
   @override
@@ -47,13 +50,17 @@ class _ChatGroupListState<T extends MessageItem> extends State<ChatGroupList<T>>
 
     return ListView.builder(
       itemCount: groupedMessages.length,
-      reverse: true,
+      controller: widget.controller,
+      //reverse: true,
       itemBuilder: (context, groupIndex) {
         _MessageGroup<T> group = groupedMessages[groupIndex];
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            widget.dataSeparatorBuilder?.call(context, group.date)??DateHeader(date: group.date),
+            if(groupIndex==0)
+              widget.dataSeparatorBuilder?.call(context, group.date)??DateSeparator(date: group.date),
+            if(groupIndex!=0 && group.date.day!=groupedMessages[groupIndex-1].date.day)
+              widget.dataSeparatorBuilder?.call(context, group.date)??DateHeader(date: group.date),
             ...List.generate(group.messages.length, (index) {
               return MessageBubble<T>(
                 isMine: group.messages[index].isMine,

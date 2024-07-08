@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:chat_group_list/chat_group_list.dart';
+import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -57,17 +60,84 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  Random random = Random();
+  var faker = Faker();
+  final ScrollController _scrollController = ScrollController();
+
+  List<MessageItemDto> messages=[
+    MessageItemDto(
+        message: 'Мое сообщеение 2',
+        date: DateTime.now(),
+        isMine: true
+    ),
+    MessageItemDto(
+      message: 'Мое сообщеение 1',
+      date: DateTime(2024, 7, 1),
+    ),
+    MessageItemDto(
+      message: 'Мое сообщеение 1',
+      date: DateTime(2024, 7, 1),
+    ),
+    MessageItemDto(
+        message: 'Мое сообщеение 1',
+        date: DateTime(2024, 7, 1)
+    ),
+    MessageItemDto(
+        message: 'Мое сообщеение 2',
+        date: DateTime(2024, 7, 2)
+    ),
+    MessageItemDto(
+        message: 'Мое сообщеение 2',
+        date: DateTime(2024, 7, 2),
+        isMine: true
+
+    ),
+    MessageItemDto(
+        message: 'Мое сообщеение 2',
+        date: DateTime(2024, 7, 2),
+        isMine: true
+
+    ),
+    MessageItemDto(
+        message: 'Мое сообщеение 2',
+        date: DateTime(2024, 7, 2),
+        isMine: true
+
+    ),
+    MessageItemDto(
+        message: 'Мое сообщеение 2',
+        date: DateTime(2024, 7, 2),
+        isMine: true
+
+    ),
+    MessageItemDto(
+        message: 'Мое сообщеение 3',
+        date: DateTime(2024, 7, 3),
+        isMine: true
+
+    ),
+    MessageItemDto(
+        message:
+        'Мое сообщеение 3 очень длинное сообщение я очень хочу проверить как оно отображается в чате',
+        date: DateTime(2024, 7, 3),
+        isMine: true
+    ),
+  ];
 
   void _incrementCounter() {
+    messages.add(MessageItemDto(
+        message: faker.lorem.sentence(),
+        date: DateTime.now(),
+        isMine: random.nextBool()
+    ));
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+
     });
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
   }
 
   @override
@@ -88,84 +158,23 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: ChatGroupList<MessageItemDto>(
-          items: [
-            MessageItemDto(
-              message: 'Мое сообщеение 2',
-                date: DateTime.now(),
-              isMine: true
-            ),
-            MessageItemDto(
-                message: 'Мое сообщеение 1',
-                date: DateTime(2024, 7, 1),
-            ),
-            MessageItemDto(
-              message: 'Мое сообщеение 1',
-              date: DateTime(2024, 7, 1),
-            ),
-            MessageItemDto(
-                message: 'Мое сообщеение 1',
-                date: DateTime(2024, 7, 1)
-            ),
-            MessageItemDto(
-                message: 'Мое сообщеение 2',
-                date: DateTime(2024, 7, 2)
-            ),
-            MessageItemDto(
-                message: 'Мое сообщеение 2',
-                date: DateTime(2024, 7, 2),
-                isMine: true
-
-            ),
-            MessageItemDto(
-                message: 'Мое сообщеение 2',
-                date: DateTime(2024, 7, 2),
-                isMine: true
-
-            ),
-            MessageItemDto(
-                message: 'Мое сообщеение 2',
-                date: DateTime(2024, 7, 2),
-                isMine: true
-
-            ),
-            MessageItemDto(
-                message: 'Мое сообщеение 2',
-                date: DateTime(2024, 7, 2),
-                isMine: true
-
-            ),
-            MessageItemDto(
-                message: 'Мое сообщеение 3',
-                date: DateTime(2024, 7, 3),
-                isMine: true
-
-            ),
-            MessageItemDto(
-                message:
-                    'Мое сообщеение 3 очень длинное сообщение я очень хочу проверить как оно отображается в чате',
-                date: DateTime(2024, 7, 3),
-                isMine: true
-            ),
-          ],
-          contentBuilder: (_,MessageItemDto item)=>Container(
-            child: Text(item.message),
-          ),
-          dataSeparatorBuilder: (_,DateTime date)=>Container(
-            alignment: Alignment.center,
-            child: Text(DateFormat('d MMMM').format(date)),
-          ),
-          messageInformationBuilder: (_,MessageItemDto item)=>Container(
-            child: Text(DateFormat('HH:mm').format(item.date),
-            ),
-          ),
-          primaryRadius: 12,
-          secondaryRadius: 6,
-          mineBackgroundColor: Colors.red,
+      body: ChatGroupList<MessageItemDto>(
+        items: messages,
+        contentBuilder: (_,MessageItemDto item)=>Container(
+          child: Text(item.message),
         ),
+        dataSeparatorBuilder: (_,DateTime date)=>Container(
+          alignment: Alignment.center,
+          child: Text(DateFormat('d MMMM').format(date)),
+        ),
+        messageInformationBuilder: (_,MessageItemDto item)=>Container(
+          child: Text(DateFormat('HH:mm').format(item.date),
+          ),
+        ),
+        primaryRadius: 24,
+        secondaryRadius: 3,
+        mineBackgroundColor: Colors.red,
+        controller: _scrollController,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
