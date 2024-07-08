@@ -1,6 +1,12 @@
 library chat_group_list;
 
+import 'package:chat_group_list/src/model/message_item.dart';
+import 'package:chat_group_list/src/presentation/data_separator.dart';
+import 'package:chat_group_list/src/presentation/date_header.dart';
+import 'package:chat_group_list/src/presentation/message_bubble.dart';
 import 'package:flutter/material.dart';
+
+export 'src/model/message_item.dart';
 
 class ChatGroupList<T extends MessageItem> extends StatefulWidget {
   final List<T> items;
@@ -44,10 +50,7 @@ class ChatGroupList<T extends MessageItem> extends StatefulWidget {
 class _ChatGroupListState<T extends MessageItem> extends State<ChatGroupList<T>> {
   @override
   Widget build(BuildContext context) {
-
     List<_MessageGroup<T>> groupedMessages = groupMessages(widget.items);
-
-
     return ListView.builder(
       itemCount: groupedMessages.length,
       controller: widget.controller,
@@ -84,8 +87,6 @@ class _ChatGroupListState<T extends MessageItem> extends State<ChatGroupList<T>>
                     ),
                 mineBackgroundColor: widget.mineBackgroundColor,
                 otherBackgroundColor: widget.otherBackgroundColor,
-
-
               );
             }),
           ],
@@ -118,49 +119,8 @@ class _ChatGroupListState<T extends MessageItem> extends State<ChatGroupList<T>>
     return groupedMessages;
   }
 }
-class DateHeader extends StatelessWidget {
-  final DateTime date;
-
-  const DateHeader({super.key, required this.date});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Center(
-        child: Text(
-          date.toString(),
-          style: TextStyle(color: Colors.grey, fontSize: 16),
-        ),
-      ),
-    );
-  }
-}
-class DateSeparator extends StatelessWidget {
-  final DateTime date;
-
-  DateSeparator({required this.date});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(8.0),
-      color: Colors.grey[300],
-      child: Text(
-        '${date.day}-${date.month}-${date.year}',
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-}
-class MessageItem{
-  final String message;
-  final DateTime date;
-  final bool isMine;
 
 
-  MessageItem( {required this.message, required this.date,this.isMine=true});
-}
 class _MessageGroup<T extends MessageItem>{
   final DateTime date;
   final List<T> messages;
@@ -168,125 +128,6 @@ class _MessageGroup<T extends MessageItem>{
   _MessageGroup({required this.date, required this.messages});
 }
 
-class MessageBubble<T extends MessageItem> extends StatelessWidget {
-  final Widget Function(BuildContext context, T item) contentBuilder;
-  final Widget Function(BuildContext context, T item)? messageInformationBuilder;
-  // отвечает за отрисовку хвоста у сообщения
-  final CustomPainter Function(BuildContext context, bool itsRight) tailBuilder;
-
-  final double? maxWidth;
-
-  final double primaryRadius;
-  final double secondaryRadius;
-  final double verticalPaddingInGroup;
-  final EdgeInsetsGeometry contentPadding;
-  final Color mineBackgroundColor;
-  final Color otherBackgroundColor;
-
-
-  final bool isMine;
-  final bool isFirst;
-  final bool isLast;
-  final T item;
-
-  const MessageBubble({
-    super.key,
-    required this.isMine,
-    required this.isFirst,
-    required this.isLast,
-    required this.contentBuilder,
-    required this.item,
-    this.messageInformationBuilder,
-    this.maxWidth,
-    this.primaryRadius=12,
-    this.secondaryRadius=6,
-    required this.verticalPaddingInGroup,
-    required this.contentPadding,
-    required this.tailBuilder, required this.mineBackgroundColor, required this.otherBackgroundColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    BorderRadius borderRadius;
-    bool needTail=false;
-    if (isFirst && isLast) {
-      borderRadius = BorderRadius.only(
-        topLeft: Radius.circular(primaryRadius),
-        topRight: Radius.circular(primaryRadius),
-        bottomLeft: Radius.circular(isMine ? primaryRadius : 0),
-        bottomRight: Radius.circular(isMine ? 0 : primaryRadius),
-      );
-      needTail=true;
-    } else if (isFirst) {
-      borderRadius = BorderRadius.only(
-        topLeft: Radius.circular(primaryRadius),
-        topRight: Radius.circular(primaryRadius),
-        bottomLeft: Radius.circular(isMine ? primaryRadius : secondaryRadius),
-        bottomRight: Radius.circular(isMine ? secondaryRadius : primaryRadius),
-      );
-    } else if (isLast) {
-      borderRadius = BorderRadius.only(
-        topLeft: Radius.circular(primaryRadius),
-        topRight: Radius.circular(primaryRadius),
-        bottomLeft: Radius.circular(isMine ? primaryRadius : 0),
-        bottomRight: Radius.circular(isMine ? 0 : primaryRadius),
-      );
-      needTail=true;
-
-    } else {
-      borderRadius = BorderRadius.only(
-        bottomLeft: Radius.circular(isMine ? primaryRadius : secondaryRadius),
-        bottomRight: Radius.circular(isMine ? secondaryRadius : primaryRadius),
-        topLeft: Radius.circular(isMine ? primaryRadius : secondaryRadius),
-        topRight: Radius.circular(isMine ? secondaryRadius : primaryRadius),
-      );
-    }
-
-    return Padding(
-        padding: EdgeInsets.symmetric(vertical: verticalPaddingInGroup),
-      child: Align(
-        alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
-        child: Stack(
-          children: [
-            Container(
-              constraints: BoxConstraints(
-                maxWidth: maxWidth??MediaQuery.of(context).size.width*0.8,
-              ),
-              margin: isMine ? EdgeInsets.only(right: 10) : EdgeInsets.only(left: 10),
-              padding: contentPadding,
-              decoration: BoxDecoration(
-                color: isMine ? mineBackgroundColor : otherBackgroundColor,
-                borderRadius: borderRadius,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: (isMine)? CrossAxisAlignment.end:CrossAxisAlignment.start,
-                children: [
-                  contentBuilder.call(context,item),
-                  if(messageInformationBuilder!=null)
-                    messageInformationBuilder!.call(context,item)
-                ],
-              ),
-            ),
-            if(needTail)
-              Positioned(
-                right: isMine ? 0 : null,
-                left: isMine ? null : 0,
-                bottom: 0,
-                child: CustomPaint(
-                  painter: tailBuilder.call(context,isMine),
-                  child: SizedBox(
-                    width: 10,
-                    height: 10,
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 
 class MessageTailPainter extends CustomPainter {
